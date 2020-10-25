@@ -19,7 +19,6 @@ public class View {
 
     private File templateFile;
 
-
     public View(File templateFile) {
         this.templateFile = templateFile;
     }
