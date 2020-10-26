@@ -1,6 +1,8 @@
 package org.idea.spring.framework.action;
 
+import org.idea.spring.framework.annotation.Autowired;
 import org.idea.spring.framework.annotation.IService;
+import org.idea.spring.framework.aspect.LogAspect;
 
 /**
  * @author linhao
@@ -9,10 +11,15 @@ import org.idea.spring.framework.annotation.IService;
 @IService
 public class TestServiceImpl implements TestService{
 
+    @Autowired
+    private LogAspect logAspect;
 
     @Override
     public void doTest() {
+        logAspect.doBefore();
         System.out.println("this is doTest");
+        logAspect.doAfter();
+
     }
 
     @Override

@@ -35,19 +35,32 @@ public class View {
         RandomAccessFile randomAccessFile = new RandomAccessFile(this.templateFile, "r");
         String line = null;
         while (null != (line = randomAccessFile.readLine())) {
-            line = new String(line.getBytes("ISO-8859-1"),"UTF-8");
-            Pattern pattern = Pattern.compile("¥\\{[^\\}]+\\}",Pattern.CASE_INSENSITIVE);
+            line = new String(line.getBytes());
+            Pattern pattern = Pattern.compile("#\\{[^\\}]+\\}",Pattern.CASE_INSENSITIVE);
             Matcher matcher = pattern.matcher(line);
             while (matcher.find()){
+                if(model==null){
+                    throw new RuntimeException("model is empty");
+                }
                 String paramName = matcher.group();
-                paramName = paramName.replaceAll("¥\\{|\\}","");
+                paramName = paramName.replaceAll("#\\{|\\}","");
                 Object paramValue = model.get(paramName);
-                line = matcher.replaceFirst(String.valueOf(paramValue));
+                String errorMsg = paramValue!=null ?paramValue.toString():"error msg";
+                //这个位置需要考虑一些关于特殊字符串的兼容问题
+//                char[] chars = errorMsg.toCharArray();
+//                for (int i=0;i<chars.length;i++) {
+//                    int refNum = (int)chars[i] - '0';
+//                    if ((refNum < 0)||(refNum > 9)) {
+//                        chars[i] = '0';
+//                    }
+//                }
+//                errorMsg = new String(chars);
+                line = matcher.replaceFirst(errorMsg);
                 matcher = pattern.matcher(line);
+                stb.append(line);
             }
-            stb.append(line);
         }
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(String.valueOf(stb));
+        response.getWriter().write(new String(stb));
     }
 }

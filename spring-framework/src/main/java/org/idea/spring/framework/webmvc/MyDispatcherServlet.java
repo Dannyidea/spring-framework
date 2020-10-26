@@ -18,8 +18,10 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.idea.spring.framework.common.constants.CommonsConstants.BASE_SERVLET;
 import static org.idea.spring.framework.common.constants.CommonsConstants.WEB_PREFIX;
 import static org.idea.spring.framework.common.util.StringUtils.toLowerFirstName;
+import static org.idea.spring.framework.webmvc.ViewResolver.DEFAULT_TEMPLATE_SUFFIX;
 
 /**
  * @author linhao
@@ -46,10 +48,11 @@ public class MyDispatcherServlet extends HttpServlet {
         try {
             doDispatch(req, resp);
         } catch (Exception e) {
-            Map<String,Object> exceptionMap = new HashMap<>(2);
-            exceptionMap.put("errorMsg","500 exception detail");
-            exceptionMap.put("stackTrace", Arrays.toString(e.getStackTrace()));
-            processDispatchResult(req, resp, new ModelAndView("500",exceptionMap));
+            Map<String, Object> exceptionMap = new HashMap<>(2);
+            exceptionMap.put("errorMsg", "500 exception detail");
+            exceptionMap.put("stackTrace",((InvocationTargetException) e).getTargetException().toString());
+            processDispatchResult(req, resp, new ModelAndView("500", exceptionMap));
+            e.printStackTrace();
         }
     }
 
@@ -77,20 +80,33 @@ public class MyDispatcherServlet extends HttpServlet {
      */
     private void processDispatchResult(HttpServletRequest req, HttpServletResponse resp, ModelAndView modelAndView) {
 
-        if(modelAndView==null){
+        if (modelAndView == null) {
             return;
         }
-        if(this.viewResolvers.isEmpty()){
+        if (this.viewResolvers.isEmpty()) {
             return;
         }
-        for(ViewResolver viewResolver: viewResolvers){
+
+        //每个viewResolver就是一个页面
+        for (ViewResolver viewResolver : viewResolvers) {
+            String viewName = modelAndView.getViewName();
+            viewName = viewName.endsWith(DEFAULT_TEMPLATE_SUFFIX) ? viewName : viewName + DEFAULT_TEMPLATE_SUFFIX;
+            if (!viewResolver.getViewName().equals(viewName)) {
+                continue;
+            }
             View view = viewResolver.resolverViewName(modelAndView.getViewName());
+            try {
+                //核心渲染页面的模块
+                view.render(modelAndView.getModel(), req, resp);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
     }
 
     private HandlerAdapter getHandlerAdapter(HandlerMapping handlerMapping) {
-        if(this.handlerAdapterMap.isEmpty()){
+        if (this.handlerAdapterMap.isEmpty()) {
             return null;
         }
         return this.handlerAdapterMap.get(handlerMapping);
@@ -207,7 +223,8 @@ public class MyDispatcherServlet extends HttpServlet {
         File newFile = new File(templateFilePath);
         for (File file : newFile.listFiles()) {
             if (file.isFile()) {
-                viewResolvers.add(new ViewResolver());
+                //将html文件加载到viewResolver里面去
+                viewResolvers.add(new ViewResolver(file));
             }
         }
 
@@ -236,7 +253,7 @@ public class MyDispatcherServlet extends HttpServlet {
                     }
                     IRequestMapping iRequestMapping = method.getAnnotation(IRequestMapping.class);
                     //使用正则表达式替换多于斜杠
-                    String url = ("/" + baseUrl + "/" + iRequestMapping.url()).trim().replaceAll("/+", "/");
+                    String url = ("/"+BASE_SERVLET + "/" + WEB_PREFIX + "/" + baseUrl + "/" + iRequestMapping.url()).trim().replaceAll("/+", "/");
                     Pattern pattern = Pattern.compile(url);
                     HandlerMapping handlerMapping = new HandlerMapping(pattern, instance, method);
                     handlerMappings.add(handlerMapping);

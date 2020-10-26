@@ -7,4 +7,9 @@ package org.idea.spring.framework.common.constants;
 public class CommonsConstants {
 
     public static final String WEB_PREFIX = "my";
+
+    public static final String WEB_APP = "mvc";
+
+    public static final String BASE_SERVLET = "/"+WEB_APP;
+
 }

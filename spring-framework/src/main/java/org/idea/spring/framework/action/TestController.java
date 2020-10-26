@@ -51,6 +51,15 @@ public class TestController {
         Map result = new HashMap();
         result.put("response",response);
         result.put("hello","hello this is hello world");
-        return new ModelAndView("hello.html",result);
+        throw new NullPointerException();
+//        return new ModelAndView("hello.html",result);
+    }
+
+    @IRequestMapping(url = "/index")
+    public ModelAndView index(){
+        Map result = new HashMap(2);
+        result.put("username","idea");
+        result.put("word","hello this is hello world");
+        return new ModelAndView("index",result);
     }
 }

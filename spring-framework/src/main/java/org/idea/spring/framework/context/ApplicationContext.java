@@ -3,6 +3,9 @@ package org.idea.spring.framework.context;
 import org.idea.spring.framework.annotation.Autowired;
 import org.idea.spring.framework.annotation.IController;
 import org.idea.spring.framework.annotation.IService;
+import org.idea.spring.framework.aop.AdviceSupport;
+import org.idea.spring.framework.aop.AopConfig;
+import org.idea.spring.framework.aop.JDKDynamicAopProxy;
 import org.idea.spring.framework.beans.BeanWrapper;
 import org.idea.spring.framework.beans.config.BeanDefinition;
 import org.idea.spring.framework.beans.support.BeanDefinitionReader;
@@ -144,12 +147,32 @@ public class ApplicationContext {
             factoryBeanObjectCache.put(beanName, instance);
             //aop需要配置一个切面表达式
             //如果慢则aop的正则表达式规则，就在这里进行代理对象的创建
+            AdviceSupport adviceSupport = instanceAdviceSupport(beanDefinition);
 
+            adviceSupport.setTargetClass(aClass);
+            adviceSupport.setTarget(instance);
+
+            //如果满足切面规则
+            if(adviceSupport.pointCutMatch()){
+                instance = new JDKDynamicAopProxy(adviceSupport).getProxy();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return instance;
     }
+
+    private AdviceSupport instanceAdviceSupport(BeanDefinition beanDefinition) {
+        AopConfig aopConfig = new AopConfig();
+        aopConfig.setPointCut(this.reader.getConfig().getProperty("pointCut"));
+        aopConfig.setAspectAfter(this.reader.getConfig().getProperty("aspectAfter"));
+        aopConfig.setAspectAfterThrow(this.reader.getConfig().getProperty("aspectAfterThrow"));
+        aopConfig.setAspectAfterThrowingName(this.reader.getConfig().getProperty("aspectAfterThrowingName"));
+        aopConfig.setAspectBefore(this.reader.getConfig().getProperty("aspectBefore"));
+        aopConfig.setAspectClass(this.reader.getConfig().getProperty("aspectClass"));
+        return new AdviceSupport(aopConfig);
+    }
+
 
 
     public int getBeanDefinitionCount() {

@@ -7,7 +7,7 @@ import org.idea.spring.framework.webmvc.MyDispatcherServlet;
 
 import java.io.File;
 
-import static org.idea.spring.framework.common.constants.CommonsConstants.WEB_PREFIX;
+import static org.idea.spring.framework.common.constants.CommonsConstants.*;
 
 /**
  * @author linhao
@@ -27,10 +27,10 @@ public class Main {
         tomcat.setPort(8080);
 
         StandardContext myCtx = (StandardContext) tomcat
-                .addWebapp("/mvc", System.getProperty("user.dir") + File.separator + "src/main");
+                .addWebapp(WEB_APP, System.getProperty("user.dir") + File.separator + "src/main");
 
         //一级目录
-        tomcat.addServlet("/mvc","myDispatcherServlet",new MyDispatcherServlet());
+        tomcat.addServlet(BASE_SERVLET,"myDispatcherServlet",new MyDispatcherServlet());
         // servlet mapping
         myCtx.addServletMappingDecoded("/"+WEB_PREFIX+"/*", "myDispatcherServlet");
         tomcat.getConnector();

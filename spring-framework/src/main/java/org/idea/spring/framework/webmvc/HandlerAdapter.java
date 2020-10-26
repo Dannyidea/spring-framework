@@ -59,15 +59,18 @@ public class HandlerAdapter {
             }
             parametersValues[i] = null;
         }
-        String beanName = toLowerFirstName(method.getDeclaringClass().getSimpleName());
         //这一步骤比较耗时，其实可以通过封装一个对象来进行优化
         Object result = method.invoke(handlerMapping.getController(), parametersValues);
         if(result==null || result.getClass().isInstance(Void.class)){
             return null;
         }
-        if(handlerMapping.getMethod().getReturnType().isInstance(ModelAndView.class)){
+        Class<?> returnType = handlerMapping.getMethod().getReturnType();
+        if(returnType == ModelAndView.class){
             return (ModelAndView) result;
         }
+//        if(returnType.isInstance(Object.class)){
+//            return
+//        }
         return null;
     }
 }
