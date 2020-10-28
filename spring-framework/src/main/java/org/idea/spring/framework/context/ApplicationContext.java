@@ -148,9 +148,9 @@ public class ApplicationContext {
             //aop需要配置一个切面表达式
             //如果慢则aop的正则表达式规则，就在这里进行代理对象的创建
             AdviceSupport adviceSupport = instanceAdviceSupport(beanDefinition);
-
-            adviceSupport.setTargetClass(aClass);
             adviceSupport.setTarget(instance);
+            adviceSupport.setTargetClass(aClass);
+            adviceSupport.parse();
 
             //如果满足切面规则
             if(adviceSupport.pointCutMatch()){

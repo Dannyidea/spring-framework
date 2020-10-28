@@ -29,8 +29,6 @@ public class TestController {
     public String doTest(@IRequestParam(name = "name") String name,
                          @IRequestParam(name = "id") String id){
         System.out.println("do test");
-        testService.doTest();
-        testService.doEcho(1);
         testService2.doEcho(2);
         return "success-1";
     }

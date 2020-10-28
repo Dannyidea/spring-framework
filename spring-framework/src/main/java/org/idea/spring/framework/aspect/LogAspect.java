@@ -16,4 +16,9 @@ public class LogAspect {
     public void doAfter(){
         System.out.println("this is after");
     }
+
+    public void afterThrowing(){
+        System.out.println("throw some thing");
+    }
+
 }

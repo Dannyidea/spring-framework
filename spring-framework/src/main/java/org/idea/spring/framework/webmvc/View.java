@@ -35,7 +35,7 @@ public class View {
         RandomAccessFile randomAccessFile = new RandomAccessFile(this.templateFile, "r");
         String line = null;
         while (null != (line = randomAccessFile.readLine())) {
-            line = new String(line.getBytes());
+            line = new String(line.getBytes("UTF-8"));
             Pattern pattern = Pattern.compile("#\\{[^\\}]+\\}",Pattern.CASE_INSENSITIVE);
             Matcher matcher = pattern.matcher(line);
             while (matcher.find()){
@@ -61,6 +61,7 @@ public class View {
             }
         }
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(new String(stb));
+        response.setContentType("text/html;charset=utf-8");
+        response.getWriter().write(stb.toString());
     }
 }

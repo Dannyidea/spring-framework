@@ -43,6 +43,9 @@ public class JDKDynamicAopProxy implements InvocationHandler {
     }
 
     private void doAdvice(Advice advice) throws InvocationTargetException, IllegalAccessException {
+        if(advice==null){
+            return;
+        }
         advice.getAdviceMethod().invoke(advice.getAspect());
     }
 

@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * 主要作用与解析AopConfig
  * @author linhao
  * @date created in 8:03 下午 2020/10/25
  */
@@ -33,21 +34,20 @@ public class AdviceSupport {
 
     public void setTargetClass(Class<?> aClass) {
         this.targetClass = aClass;
-        parse();
     }
 
-    private void parse() {
+    public void parse() {
         //无反射，不框架
         //无正则，不架构
         //目标对象和代理对象是否满足织入规则
 
-        String pointCutRegex = this.aopConfig.getPointCut()
-                .replaceAll("\\.", "\\\\.")
-                .replaceAll("\\\\.\\*", ".*")
-                .replaceAll("\\(", "\\\\(")
-                .replaceAll("\\)", "\\\\)");
+        String pointCutRegex = this.aopConfig.getPointCut();
+//                .replaceAll("\\.", "\\\\.")
+//                .replaceAll("\\\\.\\*", ".*")
+//                .replaceAll("\\(", "\\\\(")
+//                .replaceAll("\\)", "\\\\)");
         //解析出 public .* org.idea.spring.framework.action..*Service..*(.*)
-        String pointCutForClassRegex = pointCutRegex.substring(pointCutRegex.lastIndexOf("(") - 4);
+        String pointCutForClassRegex = pointCutRegex.substring(0,pointCutRegex.lastIndexOf("(") - 3);
         //解析出 org.idea.spring.framework.action..*Service
         this.pointCutClassPattern = Pattern.compile(pointCutForClassRegex.substring(pointCutForClassRegex.lastIndexOf(" ") + 1));
 
@@ -57,10 +57,12 @@ public class AdviceSupport {
         Map<String,Method> aspectMethodCache = new HashMap<String,Method>();
         try {
             Class aspectClass = Class.forName(this.aopConfig.getAspectClass());
+            //这里面需要考虑到如果也有ioc注入的情况
+            Object aspectObj = aspectClass.newInstance();
             for (Method method : aspectClass.getMethods()) {
+                //临时存储切面的相关函数信息
                 aspectMethodCache.put(method.getName(),method);
             }
-
             Pattern pointPattern = Pattern.compile(pointCutRegex);
             for(Method method: this.targetClass.getMethods()){
                 String methodName = method.toString();
@@ -72,20 +74,21 @@ public class AdviceSupport {
                 //匹配到目标对象到方法
                 if(matcher.find()){
                     if(!(null == this.aopConfig.getAspectBefore() || "".equals(this.aopConfig.getAspectBefore()))){
-                        adviceMap.put("before",new Advice(aspectMethodCache.get(methodName),target));
+                        adviceMap.put("before",new Advice(aspectMethodCache.get(this.aopConfig.getAspectBefore()),aspectObj));
                     }
                     if(!(null == this.aopConfig.getAspectAfter() || "".equals(this.aopConfig.getAspectAfter()))){
-                        adviceMap.put("after",new Advice(aspectMethodCache.get(methodName),target));
+                        adviceMap.put("after",new Advice(aspectMethodCache.get(this.aopConfig.getAspectAfter()),aspectObj));
                     }
                     if(!(null == this.aopConfig.getAspectAfterThrow() || "".equals(this.aopConfig.getAspectAfterThrow()))){
-                        Advice advice = new Advice(aspectMethodCache.get(methodName),target);
+                        Advice advice = new Advice(aspectMethodCache.get(this.aopConfig.getAspectAfterThrow()),aspectObj);
                         advice.setThrowName(this.aopConfig.getAspectAfterThrowingName());
                         adviceMap.put("afterThrowing",advice);
                     }
+                    methodMap.put(method,adviceMap);
                 }
             }
 
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

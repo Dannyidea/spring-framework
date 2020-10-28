@@ -25,5 +25,6 @@ public class TestServiceImpl implements TestService{
     @Override
     public void doEcho(int id) {
         System.out.println("this is echo1"+id);
+        throw new RuntimeException("err");
     }
 }
