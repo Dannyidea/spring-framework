@@ -2,18 +2,14 @@ package org.idea.spring.framework;
 
 import org.idea.spring.framework.action.TestController;
 import org.idea.spring.framework.common.RequestMapping;
-import org.idea.spring.framework.common.RestController;
-import sun.misc.Request;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.sound.midi.Soundbank;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -36,12 +32,12 @@ public class DispatchServlet extends HttpServlet {
         if (pattern.matcher(requestMapping.url()).matches()) {
             Method[] methods = TestController.class.getDeclaredMethods();
             for (Method method : methods) {
-                String reqMethodUrl = url.replaceAll(requestMapping.url(),"");
+                String reqMethodUrl = url.replaceAll(requestMapping.url(), "");
                 if (method.isAnnotationPresent(RequestMapping.class)) {
                     String methodUrl = method.getAnnotation(RequestMapping.class).url();
                     Pattern methodPattern = Pattern.compile(methodUrl);
-                    if(methodPattern.matcher(reqMethodUrl).matches()){
-                        System.out.println("method name is "+method.getName());
+                    if (methodPattern.matcher(reqMethodUrl).matches()) {
+                        System.out.println("method name is " + method.getName());
                         break;
                     }
                 }
