@@ -51,4 +51,11 @@ public class DispatchServlet extends HttpServlet {
     }
 
 
+    /**
+     * 初始化资源信息
+     */
+    protected void initStrategies(){
+
+    }
+
 }
