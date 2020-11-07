@@ -43,8 +43,15 @@ public class ApplicationContext {
         }
         BeanDefinition beanDefinition = this.beanDefinitionMap.get(beanName);
         if (beanDefinition != null) {
-            beanDefinition.getBeanClass();
+            String className = beanDefinition.getBeanClass();
+            try {
+                Object instance = Class.forName(className).newInstance();
+                return instance;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+        return null;
     }
 
     /**
