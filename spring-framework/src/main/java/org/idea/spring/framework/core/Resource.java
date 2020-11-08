@@ -26,11 +26,6 @@ public interface Resource extends InputStreamResource {
         return false;
     }
 
-    URL getURL();
-
-    File getFile();
-
     String getFilename();
 
-    String getDescription();
 }

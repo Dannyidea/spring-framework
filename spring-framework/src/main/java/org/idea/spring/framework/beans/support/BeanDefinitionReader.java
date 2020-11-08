@@ -5,6 +5,10 @@ import org.idea.spring.framework.annotation.IController;
 import org.idea.spring.framework.annotation.IService;
 import org.idea.spring.framework.beans.config.BeanDefinition;
 import org.idea.spring.framework.common.util.StringUtils;
+import org.idea.spring.framework.core.PathMatcher;
+import org.idea.spring.framework.core.PropertiesResource;
+import org.idea.spring.framework.core.Resource;
+import org.idea.spring.framework.core.ResourcePatternResolver;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,14 +25,19 @@ public class BeanDefinitionReader {
 
     private Properties contextConfig;
 
+    private ResourcePatternResolver resourcePatternResolver;
+
     private List<String> registerClassNameList = new ArrayList<>();
 
     public BeanDefinitionReader(String[] configLocations) {
-        contextConfig = new Properties();
+        resourcePatternResolver = new PathMatcher();
         //加载配置文件
-        doLoadContainer(configLocations[0]);
+        Resource[] resource = resourcePatternResolver.getResources(configLocations);
+        PropertiesResource propertiesResource = (PropertiesResource) resource[0];
+        this.contextConfig = propertiesResource.getProperties();
+//        doLoadContainer(configLocations[0]);
         //解析配置文件，将配置信息封装成BeanDefinition
-        doScanner(contextConfig.getProperty("basePackage"));
+        doScanner(propertiesResource.getProperties().getProperty("basePackage"));
     }
 
     public List<BeanDefinition> doLoadBeanDefinition() {
