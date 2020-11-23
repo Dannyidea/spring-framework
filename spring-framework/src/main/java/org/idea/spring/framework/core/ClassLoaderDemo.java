@@ -22,7 +22,6 @@ public class ClassLoaderDemo {
         ClassLoaderDemo classLoaderDemo = new ClassLoaderDemo();
 //        classLoaderDemo.displayFile("org/idea/spring/framework");
 //        classLoaderDemo.displayFile2("/application.properties");
-//
         URL url = classLoaderDemo.getClass().getResource("/org/idea/spring/framework");
         System.out.println(url.getPath());
         System.out.println(url.getFile());
